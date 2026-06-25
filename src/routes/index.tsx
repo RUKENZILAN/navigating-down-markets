@@ -23,7 +23,10 @@ export const Route = createFileRoute("/")({
 
 type Risk = "conservative" | "balanced" | "aggressive";
 
+type Market = "global" | "tr";
+
 interface Inputs {
+  market: Market;
   policyRate: number; // central bank rate %
   inflation: number; // CPI YoY %
   gdpGrowth: number; // real GDP %
