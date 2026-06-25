@@ -317,6 +317,50 @@ function topIdeas(i: Inputs): { title: string; detail: string }[] {
         "Monthly contributions into a global equity ETF (VWCE/VT) remove timing risk. Over 10+ years the entry point matters far less than the discipline.",
     });
   }
+  if (i.market === "tr") {
+    ideas.push({
+      title: "TL mevduat & KKM yerine kısa vadeli DİBS / TLREF fonları",
+      detail:
+        "TCMB politika faizi yüksekken kısa vadeli Hazine bonoları, TLREF endeksli para piyasası fonları (örn. AFA, ZTM) ve likit fonlar mevduata göre genelde daha avantajlı net getiri sağlar; vergi avantajı için ≥1 yıl tutulan fonlara dikkat.",
+    });
+    if (i.inflation >= 25) {
+      ideas.push({
+        title: "TÜFE'ye Endeksli Devlet Tahvili (TÜFEX) sleeve'i",
+        detail:
+          "Yüksek enflasyon rejiminde TÜFE'ye endeksli DİBS'ler reel getiriyi koruyan en temiz araç. Doğrudan ihaleden veya TÜFEX ağırlıklı yatırım fonları üzerinden erişilebilir.",
+      });
+    }
+    ideas.push({
+      title: "Altın: gram altın, Ziraat Kulpsuz / BIST altın fonları (GLD, GAU)",
+      detail:
+        "TL'nin yapısal değer kaybı ve negatif reel faiz dönemlerinde altın hem enflasyon hem kur hedge'i. Fiziki yerine BIST'te işlem gören altın ETF'leri (GLD, GAU) likidite ve saklama açısından pratiktir.",
+    });
+    ideas.push({
+      title: "Eurobond ve döviz cinsi fonlar ile kur koruması",
+      detail:
+        "Hazine USD eurobondları veya eurobond fonları (örn. AK Eurobond, QNB Finans Eurobond) hem USD getirisi hem TL bazında kur kazancı sunar. Portföyün %20-40'ı döviz bazlı tutulması tipik bir TR çözümü.",
+    });
+    if (i.risk !== "conservative") {
+      ideas.push({
+        title: "BIST: temettü ve ihracatçı ağırlıklı seçici hisse",
+        detail:
+          "Enflasyon ortamında pricing power'ı olan ihracatçılar (otomotiv, beyaz eşya, demir-çelik) ve istikrarlı temettü ödeyenler tercih edilir. BIST Temettü 25 (DJIST) veya BIST 30 (XU030 / ZPX30 fonu) ile geniş erişim.",
+      });
+    }
+    if (i.horizonYears >= 5) {
+      ideas.push({
+        title: "Bireysel Emeklilik Sistemi (BES) %30 devlet katkısı",
+        detail:
+          "BES katkı paylarına %30 devlet katkısı + uzun vadede stopaj avantajı, TR'ye özgü en yüksek risksiz alpha kaynaklarından biri. Fon seçimini agresif/dengeli profile göre kendin belirleyebilirsin.",
+      });
+    }
+    ideas.push({
+      title: "Gayrimenkul yerine GYO ve gayrimenkul yatırım fonları",
+      detail:
+        "Doğrudan konut alımının likidite ve vergi yükü yüksek. BIST'teki GYO'lar (örn. EKGYO, ISGYO) ve nitelikli yatırımcı gayrimenkul fonları daha esnek bir reel varlık ekspozürü sağlar.",
+    });
+  }
+
   if (ideas.length === 0) {
     ideas.push({
       title: "Stay diversified and rebalance annually",
@@ -327,8 +371,21 @@ function topIdeas(i: Inputs): { title: string; detail: string }[] {
   return ideas;
 }
 
-function Index() {
-  const [inputs, setInputs] = useState<Inputs>({
+function defaultsFor(market: Market): Inputs {
+  if (market === "tr") {
+    return {
+      market: "tr",
+      policyRate: 42.5,
+      inflation: 38,
+      gdpGrowth: 2.5,
+      equityValuation: "fair",
+      usdTrend: "strong",
+      horizonYears: 5,
+      risk: "balanced",
+    };
+  }
+  return {
+    market: "global",
     policyRate: 4.5,
     inflation: 3.0,
     gdpGrowth: 1.5,
@@ -336,7 +393,12 @@ function Index() {
     usdTrend: "neutral",
     horizonYears: 7,
     risk: "balanced",
-  });
+  };
+}
+
+function Index() {
+  const [inputs, setInputs] = useState<Inputs>(() => defaultsFor("global"));
+
 
   const { allocation, reasoning } = useMemo(() => buildAllocation(inputs), [inputs]);
   const ideas = useMemo(() => topIdeas(inputs), [inputs]);
