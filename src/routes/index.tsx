@@ -145,250 +145,320 @@ function normalize(alloc: Allocation): Allocation {
   return out;
 }
 
+const REASONS = {
+  en: {
+    highRates:
+      "Policy rates are high: cash and short-duration bonds lock in attractive risk-free yields while you wait for better entry points in risk assets.",
+    lowRates:
+      "Rates are low: cash is unrewarding. Duration, equities, REITs and gold typically benefit from cheap money.",
+    highInflation:
+      "Inflation is hot: real assets (gold, commodities, REITs) and value/dividend equities historically outperform; long-duration bonds suffer.",
+    disinflation:
+      "Disinflation favours duration and quality credit; commodities lose their tailwind.",
+    posReal: (r: string) =>
+      `Real yields are positive (~${r}%). High-quality bonds pay you to wait — historically a strong setup for fixed income.`,
+    negReal: (r: string) =>
+      `Real yields are negative (~${r}%). Hard assets and equities hedge financial repression.`,
+    recession:
+      "Growth is contracting: tilt to quality — government bonds, IG credit, defensive/value equities, and gold. Trim cyclicals and high yield.",
+    boom: "Growth is robust: cyclicals, EM, high yield and commodities are favoured.",
+    expensive:
+      "Developed equities look expensive — rotate toward value, EM (cheaper on most measures), and keep dry powder.",
+    cheap: "Equities are cheap — bias toward deploying capital broadly.",
+    strongUsd: "A strong USD is a headwind for EM and gold; bias to USD-denominated assets.",
+    weakUsd: "A weak USD is a structural tailwind for EM, gold and commodities.",
+    short:
+      "Short horizon: capital preservation dominates. Equity drawdowns can take 3–5 years to recover.",
+    long: "Long horizon: equities compound — short-term volatility is the price of long-term returns.",
+  },
+  tr: {
+    highRates:
+      "Politika faizi yüksek: nakit ve kısa vadeli tahviller cazip risksiz getiriyi kilitlerken, risk varlıklarında daha iyi giriş seviyelerini beklemeni sağlar.",
+    lowRates:
+      "Faizler düşük: nakit getirisiz. Uzun vade tahvilleri, hisseler, GYO ve altın ucuz para ortamından genellikle kazanır.",
+    highInflation:
+      "Enflasyon yüksek: reel varlıklar (altın, emtia, GYO) ve değer/temettü hisseleri tarihsel olarak üstün performans gösterir; uzun vadeli tahviller zarar görür.",
+    disinflation:
+      "Dezenflasyon uzun vadeyi ve kaliteli krediyi destekler; emtia rüzgârını kaybeder.",
+    posReal: (r: string) =>
+      `Reel getiri pozitif (~%${r}). Kaliteli tahviller beklemenin karşılığını ödüyor — sabit getiri için tarihsel olarak güçlü bir kurulum.`,
+    negReal: (r: string) =>
+      `Reel getiri negatif (~%${r}). Sert varlıklar ve hisseler finansal baskıya karşı hedge görevi görür.`,
+    recession:
+      "Büyüme daralıyor: kaliteye yönel — devlet tahvilleri, yatırım yapılabilir kredi, defansif/değer hisseleri ve altın. Döngüsel sektörleri ve yüksek getirili tahvilleri azalt.",
+    boom: "Büyüme güçlü: döngüsel sektörler, gelişen piyasalar, yüksek getirili tahvil ve emtia öne çıkar.",
+    expensive:
+      "Gelişmiş piyasa hisseleri pahalı görünüyor — değer hisseleri, gelişen piyasalar (çoğu ölçüte göre daha ucuz) yönüne dön ve nakit tut.",
+    cheap: "Hisseler ucuz — sermayeni geniş tabanlı dağıtmaya odaklan.",
+    strongUsd:
+      "Güçlü USD, gelişen piyasalar ve altın için olumsuz; USD bazlı varlıklara ağırlık ver.",
+    weakUsd: "Zayıf USD; gelişen piyasalar, altın ve emtia için yapısal destek.",
+    short:
+      "Kısa vade: anaparayı korumak öncelikli. Hisse düşüşlerinden çıkış 3–5 yıl sürebilir.",
+    long: "Uzun vade: hisseler bileşik büyür — kısa vadeli oynaklık uzun vadeli getirinin bedelidir.",
+  },
+} as const;
+
 function buildAllocation(i: Inputs, lang: Lang = "en"): { allocation: Allocation; reasoning: string[] } {
   const a: Allocation = { ...RISK_BASE[i.risk] };
   const reasoning: string[] = [];
   const realRate = i.policyRate - i.inflation;
+  const R = REASONS[lang];
 
-  // Rates regime
   if (i.policyRate >= 4.5) {
-    tilt(a, "cash", 4);
-    tilt(a, "shortBonds", 6);
-    tilt(a, "ig", 3);
-    tilt(a, "longBonds", -3);
-    tilt(a, "hy", -2);
-    reasoning.push(
-      "Policy rates are high: cash and short-duration bonds lock in attractive risk-free yields while you wait for better entry points in risk assets.",
-    );
+    tilt(a, "cash", 4); tilt(a, "shortBonds", 6); tilt(a, "ig", 3);
+    tilt(a, "longBonds", -3); tilt(a, "hy", -2);
+    reasoning.push(R.highRates);
   } else if (i.policyRate <= 1.5) {
-    tilt(a, "cash", -3);
-    tilt(a, "shortBonds", -3);
-    tilt(a, "longBonds", 3);
-    tilt(a, "equityDev", 3);
-    tilt(a, "reits", 2);
-    tilt(a, "gold", 2);
-    reasoning.push(
-      "Rates are low: cash is unrewarding. Duration, equities, REITs and gold typically benefit from cheap money.",
-    );
+    tilt(a, "cash", -3); tilt(a, "shortBonds", -3); tilt(a, "longBonds", 3);
+    tilt(a, "equityDev", 3); tilt(a, "reits", 2); tilt(a, "gold", 2);
+    reasoning.push(R.lowRates);
   }
 
-  // Inflation regime
   if (i.inflation >= 4) {
-    tilt(a, "gold", 3);
-    tilt(a, "commodities", 3);
-    tilt(a, "reits", 2);
-    tilt(a, "equityValue", 3);
-    tilt(a, "longBonds", -4);
-    reasoning.push(
-      "Inflation is hot: real assets (gold, commodities, REITs) and value/dividend equities historically outperform; long-duration bonds suffer.",
-    );
+    tilt(a, "gold", 3); tilt(a, "commodities", 3); tilt(a, "reits", 2);
+    tilt(a, "equityValue", 3); tilt(a, "longBonds", -4);
+    reasoning.push(R.highInflation);
   } else if (i.inflation <= 1.5) {
-    tilt(a, "longBonds", 3);
-    tilt(a, "ig", 2);
-    tilt(a, "commodities", -2);
-    tilt(a, "gold", -1);
-    reasoning.push(
-      "Disinflation favours duration and quality credit; commodities lose their tailwind.",
-    );
+    tilt(a, "longBonds", 3); tilt(a, "ig", 2);
+    tilt(a, "commodities", -2); tilt(a, "gold", -1);
+    reasoning.push(R.disinflation);
   }
 
-  // Real rates
   if (realRate >= 2) {
-    tilt(a, "shortBonds", 3);
-    tilt(a, "ig", 2);
-    reasoning.push(
-      `Real yields are positive (~${realRate.toFixed(1)}%). High-quality bonds pay you to wait — historically a strong setup for fixed income.`,
-    );
+    tilt(a, "shortBonds", 3); tilt(a, "ig", 2);
+    reasoning.push(R.posReal(realRate.toFixed(1)));
   } else if (realRate <= -1) {
-    tilt(a, "gold", 2);
-    tilt(a, "equityDev", 2);
-    tilt(a, "bitcoin", 1);
-    reasoning.push(
-      `Real yields are negative (~${realRate.toFixed(1)}%). Hard assets and equities hedge financial repression.`,
-    );
+    tilt(a, "gold", 2); tilt(a, "equityDev", 2); tilt(a, "bitcoin", 1);
+    reasoning.push(R.negReal(realRate.toFixed(1)));
   }
 
-  // Growth regime
   if (i.gdpGrowth <= 0) {
-    tilt(a, "longBonds", 4);
-    tilt(a, "ig", 3);
-    tilt(a, "hy", -3);
-    tilt(a, "equityEm", -2);
-    tilt(a, "equityDev", -3);
-    tilt(a, "equityValue", 2);
-    tilt(a, "gold", 2);
-    reasoning.push(
-      "Growth is contracting: tilt to quality — government bonds, IG credit, defensive/value equities, and gold. Trim cyclicals and high yield.",
-    );
+    tilt(a, "longBonds", 4); tilt(a, "ig", 3); tilt(a, "hy", -3);
+    tilt(a, "equityEm", -2); tilt(a, "equityDev", -3);
+    tilt(a, "equityValue", 2); tilt(a, "gold", 2);
+    reasoning.push(R.recession);
   } else if (i.gdpGrowth >= 3) {
-    tilt(a, "equityDev", 3);
-    tilt(a, "equityEm", 3);
-    tilt(a, "hy", 2);
-    tilt(a, "commodities", 2);
-    tilt(a, "longBonds", -2);
-    reasoning.push(
-      "Growth is robust: cyclicals, EM, high yield and commodities are favoured.",
-    );
+    tilt(a, "equityDev", 3); tilt(a, "equityEm", 3); tilt(a, "hy", 2);
+    tilt(a, "commodities", 2); tilt(a, "longBonds", -2);
+    reasoning.push(R.boom);
   }
 
-  // Valuation
   if (i.equityValuation === "expensive") {
-    tilt(a, "equityDev", -4);
-    tilt(a, "equityValue", 3);
-    tilt(a, "equityEm", 2);
-    tilt(a, "cash", 2);
-    reasoning.push(
-      "Developed equities look expensive — rotate toward value, EM (cheaper on most measures), and keep dry powder.",
-    );
+    tilt(a, "equityDev", -4); tilt(a, "equityValue", 3);
+    tilt(a, "equityEm", 2); tilt(a, "cash", 2);
+    reasoning.push(R.expensive);
   } else if (i.equityValuation === "cheap") {
-    tilt(a, "equityDev", 4);
-    tilt(a, "equityValue", 2);
-    tilt(a, "cash", -2);
-    reasoning.push("Equities are cheap — bias toward deploying capital broadly.");
+    tilt(a, "equityDev", 4); tilt(a, "equityValue", 2); tilt(a, "cash", -2);
+    reasoning.push(R.cheap);
   }
 
-  // USD trend → EM exposure
   if (i.usdTrend === "strong") {
-    tilt(a, "equityEm", -3);
-    tilt(a, "gold", -1);
-    tilt(a, "equityDev", 2);
-    reasoning.push("A strong USD is a headwind for EM and gold; bias to USD-denominated assets.");
+    tilt(a, "equityEm", -3); tilt(a, "gold", -1); tilt(a, "equityDev", 2);
+    reasoning.push(R.strongUsd);
   } else if (i.usdTrend === "weak") {
-    tilt(a, "equityEm", 3);
-    tilt(a, "gold", 2);
-    tilt(a, "commodities", 2);
-    reasoning.push("A weak USD is a structural tailwind for EM, gold and commodities.");
+    tilt(a, "equityEm", 3); tilt(a, "gold", 2); tilt(a, "commodities", 2);
+    reasoning.push(R.weakUsd);
   }
 
-  // Horizon
   if (i.horizonYears < 3) {
-    tilt(a, "cash", 8);
-    tilt(a, "shortBonds", 5);
-    tilt(a, "equityDev", -6);
-    tilt(a, "equityEm", -3);
-    tilt(a, "bitcoin", -2);
-    tilt(a, "commodities", -2);
-    reasoning.push(
-      "Short horizon: capital preservation dominates. Equity drawdowns can take 3–5 years to recover.",
-    );
+    tilt(a, "cash", 8); tilt(a, "shortBonds", 5); tilt(a, "equityDev", -6);
+    tilt(a, "equityEm", -3); tilt(a, "bitcoin", -2); tilt(a, "commodities", -2);
+    reasoning.push(R.short);
   } else if (i.horizonYears >= 10) {
-    tilt(a, "equityDev", 4);
-    tilt(a, "equityEm", 2);
-    tilt(a, "cash", -3);
-    reasoning.push(
-      "Long horizon: equities compound — short-term volatility is the price of long-term returns.",
-    );
+    tilt(a, "equityDev", 4); tilt(a, "equityEm", 2); tilt(a, "cash", -3);
+    reasoning.push(R.long);
   }
 
   return { allocation: normalize(a), reasoning };
 }
 
-function topIdeas(i: Inputs): { title: string; detail: string }[] {
-  const ideas: { title: string; detail: string }[] = [];
-  const realRate = i.policyRate - i.inflation;
+type Idea = { title: string; detail: string };
 
-  if (i.policyRate >= 4) {
-    ideas.push({
+const IDEAS_I18N = {
+  en: {
+    lockYield: {
       title: "Lock in yield with short-duration government bonds",
       detail:
         "1–3 year Treasuries / Bunds / Gilts via ETFs (e.g. SHY, IB01) pay near peak-cycle yields with minimal duration risk. Ladder maturities to roll into whatever comes next.",
-    });
-  }
-  if (realRate >= 1.5) {
-    ideas.push({
+    },
+    tips: {
       title: "Build a TIPS / inflation-linked sleeve",
       detail:
         "Positive real yields on inflation-linked bonds are rare. Locking in a real return above inflation is a high-quality, low-stress trade.",
-    });
-  }
-  if (i.inflation >= 3.5) {
-    ideas.push({
+    },
+    realHedge: {
       title: "Add real-asset hedges",
       detail:
         "Gold (PHAU/IAU), broad commodities (DBC/BCOM), and quality REITs with pricing power preserve purchasing power when CPI runs hot.",
-    });
-  }
-  if (i.equityValuation === "expensive" && i.risk !== "conservative") {
-    ideas.push({
+    },
+    rotateValue: {
       title: "Rotate from cap-weighted indices toward value & quality",
       detail:
         "Equal-weight S&P, global value, and dividend-aristocrat ETFs reduce concentration risk when megacaps are stretched.",
-    });
-  }
-  if (i.usdTrend === "weak" && i.risk !== "conservative") {
-    ideas.push({
+    },
+    em: {
       title: "Increase EM and international exposure",
       detail:
         "EM equities and local-currency EM debt benefit from a weak USD and tend to trade at cheaper multiples than US large-caps.",
-    });
-  }
-  if (i.gdpGrowth <= 0.5) {
-    ideas.push({
+    },
+    barbell: {
       title: "Barbell: long-duration Treasuries + defensive equity",
       detail:
         "If growth disappoints, long bonds rally as rates fall. Pair with healthcare, staples and utilities for defensive carry.",
-    });
-  }
-  if (i.horizonYears >= 10 && i.risk === "aggressive") {
-    ideas.push({
+    },
+    dca: {
       title: "Systematic DCA into global equities",
       detail:
         "Monthly contributions into a global equity ETF (VWCE/VT) remove timing risk. Over 10+ years the entry point matters far less than the discipline.",
-    });
-  }
-  if (i.market === "tr") {
-    ideas.push({
-      title: "TL mevduat & KKM yerine kısa vadeli DİBS / TLREF fonları",
-      detail:
-        "TCMB politika faizi yüksekken kısa vadeli Hazine bonoları, TLREF endeksli para piyasası fonları (örn. AFA, ZTM) ve likit fonlar mevduata göre genelde daha avantajlı net getiri sağlar; vergi avantajı için ≥1 yıl tutulan fonlara dikkat.",
-    });
-    if (i.inflation >= 25) {
-      ideas.push({
-        title: "TÜFE'ye Endeksli Devlet Tahvili (TÜFEX) sleeve'i",
-        detail:
-          "Yüksek enflasyon rejiminde TÜFE'ye endeksli DİBS'ler reel getiriyi koruyan en temiz araç. Doğrudan ihaleden veya TÜFEX ağırlıklı yatırım fonları üzerinden erişilebilir.",
-      });
-    }
-    ideas.push({
-      title: "Altın: gram altın, Ziraat Kulpsuz / BIST altın fonları (GLD, GAU)",
-      detail:
-        "TL'nin yapısal değer kaybı ve negatif reel faiz dönemlerinde altın hem enflasyon hem kur hedge'i. Fiziki yerine BIST'te işlem gören altın ETF'leri (GLD, GAU) likidite ve saklama açısından pratiktir.",
-    });
-    ideas.push({
-      title: "Eurobond ve döviz cinsi fonlar ile kur koruması",
-      detail:
-        "Hazine USD eurobondları veya eurobond fonları (örn. AK Eurobond, QNB Finans Eurobond) hem USD getirisi hem TL bazında kur kazancı sunar. Portföyün %20-40'ı döviz bazlı tutulması tipik bir TR çözümü.",
-    });
-    if (i.risk !== "conservative") {
-      ideas.push({
-        title: "BIST: temettü ve ihracatçı ağırlıklı seçici hisse",
-        detail:
-          "Enflasyon ortamında pricing power'ı olan ihracatçılar (otomotiv, beyaz eşya, demir-çelik) ve istikrarlı temettü ödeyenler tercih edilir. BIST Temettü 25 (DJIST) veya BIST 30 (XU030 / ZPX30 fonu) ile geniş erişim.",
-      });
-    }
-    if (i.horizonYears >= 5) {
-      ideas.push({
-        title: "Bireysel Emeklilik Sistemi (BES) %30 devlet katkısı",
-        detail:
-          "BES katkı paylarına %30 devlet katkısı + uzun vadede stopaj avantajı, TR'ye özgü en yüksek risksiz alpha kaynaklarından biri. Fon seçimini agresif/dengeli profile göre kendin belirleyebilirsin.",
-      });
-    }
-    ideas.push({
-      title: "Gayrimenkul yerine GYO ve gayrimenkul yatırım fonları",
-      detail:
-        "Doğrudan konut alımının likidite ve vergi yükü yüksek. BIST'teki GYO'lar (örn. EKGYO, ISGYO) ve nitelikli yatırımcı gayrimenkul fonları daha esnek bir reel varlık ekspozürü sağlar.",
-    });
-  }
-
-  if (ideas.length === 0) {
-    ideas.push({
+    },
+    diversified: {
       title: "Stay diversified and rebalance annually",
       detail:
         "Conditions are mixed — no single trade dominates. Stick to your target allocation and rebalance back to weights once a year.",
-    });
+    },
+    trMoneyMarket: {
+      title: "Short-term T-Bills / TLREF money-market funds instead of deposits & KKM",
+      detail:
+        "While the CBRT policy rate is high, short-term Turkish T-Bills, TLREF-indexed money market funds (e.g. AFA, ZTM) and liquid funds generally deliver better net yields than deposits; hold for ≥1 year for tax advantage.",
+    },
+    trTufex: {
+      title: "CPI-linked Government Bond (TÜFEX) sleeve",
+      detail:
+        "In a high-inflation regime, CPI-linked government bonds are the cleanest tool to protect real return. Accessible via Treasury auctions or TÜFEX-heavy mutual funds.",
+    },
+    trGold: {
+      title: "Gold: gram gold, BIST gold ETFs (GLD, GAU)",
+      detail:
+        "In periods of structural TL depreciation and negative real rates, gold hedges both inflation and FX. BIST-traded gold ETFs (GLD, GAU) are more practical than physical for liquidity and custody.",
+    },
+    trEurobond: {
+      title: "FX protection via eurobonds and FX-denominated funds",
+      detail:
+        "Treasury USD eurobonds or eurobond funds (e.g. AK Eurobond, QNB Finans Eurobond) deliver USD yield plus TL-based FX gains. Keeping 20–40% of the portfolio FX-based is a typical Turkish solution.",
+    },
+    trBist: {
+      title: "BIST: selective dividend and exporter-heavy stocks",
+      detail:
+        "In an inflationary environment, exporters with pricing power (auto, white goods, steel) and stable dividend payers are preferred. Broad access via BIST Dividend 25 (DJIST) or BIST 30 (XU030 / ZPX30 fund).",
+    },
+    trBes: {
+      title: "Individual Pension System (BES) — 30% state contribution",
+      detail:
+        "BES contributions earn a 30% state match plus long-term tax advantage — one of Turkey's highest risk-free alpha sources. You can pick fund allocation by aggressive/balanced profile.",
+    },
+    trReits: {
+      title: "REITs and real-estate funds instead of direct property",
+      detail:
+        "Direct housing has heavy liquidity and tax burden. BIST REITs (e.g. EKGYO, ISGYO) and qualified-investor real-estate funds provide a more flexible real-asset exposure.",
+    },
+  },
+  tr: {
+    lockYield: {
+      title: "Kısa vadeli devlet tahvilleri ile getiriyi kilitle",
+      detail:
+        "1–3 yıllık Hazine / Bund / Gilt tahvilleri ETF'ler aracılığıyla (örn. SHY, IB01) döngünün zirvesine yakın getiriyi minimum vade riskiyle sağlar. Vadeleri merdivenle, sonrasına devret.",
+    },
+    tips: {
+      title: "TIPS / enflasyona endeksli tahvil sleeve'i kur",
+      detail:
+        "Enflasyona endeksli tahvillerde pozitif reel getiri nadirdir. Enflasyonun üzerinde reel getiriyi kilitlemek kaliteli ve düşük stresli bir işlemdir.",
+    },
+    realHedge: {
+      title: "Reel varlık hedge'leri ekle",
+      detail:
+        "Altın (PHAU/IAU), geniş emtia (DBC/BCOM) ve fiyatlama gücü olan kaliteli GYO'lar, TÜFE yüksek seyrederken alım gücünü korur.",
+    },
+    rotateValue: {
+      title: "Piyasa değeri ağırlıklı endekslerden değer ve kaliteye dön",
+      detail:
+        "Eşit ağırlıklı S&P, küresel değer ve temettü aristokratı ETF'leri, mega şirketler aşırı gerildiğinde konsantrasyon riskini azaltır.",
+    },
+    em: {
+      title: "Gelişen piyasa ve uluslararası ekspozürü artır",
+      detail:
+        "Gelişen piyasa hisseleri ve yerel para EM tahvilleri zayıf USD'den faydalanır ve ABD büyük şirketlerine kıyasla daha ucuz çarpanlarda işlem görür.",
+    },
+    barbell: {
+      title: "Barbell: uzun vade Hazine + defansif hisse",
+      detail:
+        "Büyüme hayal kırıklığı yaratırsa faizler düştükçe uzun tahviller değer kazanır. Defansif taşıma için sağlık, temel tüketim ve enerji altyapı sektörleriyle eşleştir.",
+    },
+    dca: {
+      title: "Küresel hisselere sistematik DCA",
+      detail:
+        "Küresel hisse ETF'sine (VWCE/VT) aylık katkı zamanlama riskini kaldırır. 10+ yıllık vadede giriş noktası, disiplinden çok daha az önemlidir.",
+    },
+    diversified: {
+      title: "Çeşitlendirilmiş kal ve yıllık yeniden dengele",
+      detail:
+        "Koşullar karışık — tek bir işlem baskın değil. Hedef dağılımına bağlı kal ve yılda bir hedef ağırlıklara döndür.",
+    },
+    trMoneyMarket: {
+      title: "TL mevduat & KKM yerine kısa vadeli DİBS / TLREF fonları",
+      detail:
+        "TCMB politika faizi yüksekken kısa vadeli Hazine bonoları, TLREF endeksli para piyasası fonları (örn. AFA, ZTM) ve likit fonlar mevduata göre genelde daha avantajlı net getiri sağlar; vergi avantajı için ≥1 yıl tutulan fonlara dikkat.",
+    },
+    trTufex: {
+      title: "TÜFE'ye Endeksli Devlet Tahvili (TÜFEX) sleeve'i",
+      detail:
+        "Yüksek enflasyon rejiminde TÜFE'ye endeksli DİBS'ler reel getiriyi koruyan en temiz araç. Doğrudan ihaleden veya TÜFEX ağırlıklı yatırım fonları üzerinden erişilebilir.",
+    },
+    trGold: {
+      title: "Altın: gram altın, BIST altın fonları (GLD, GAU)",
+      detail:
+        "TL'nin yapısal değer kaybı ve negatif reel faiz dönemlerinde altın hem enflasyon hem kur hedge'i. Fiziki yerine BIST'te işlem gören altın ETF'leri (GLD, GAU) likidite ve saklama açısından pratiktir.",
+    },
+    trEurobond: {
+      title: "Eurobond ve döviz cinsi fonlar ile kur koruması",
+      detail:
+        "Hazine USD eurobondları veya eurobond fonları (örn. AK Eurobond, QNB Finans Eurobond) hem USD getirisi hem TL bazında kur kazancı sunar. Portföyün %20-40'ı döviz bazlı tutulması tipik bir TR çözümü.",
+    },
+    trBist: {
+      title: "BIST: temettü ve ihracatçı ağırlıklı seçici hisse",
+      detail:
+        "Enflasyon ortamında fiyatlama gücü olan ihracatçılar (otomotiv, beyaz eşya, demir-çelik) ve istikrarlı temettü ödeyenler tercih edilir. BIST Temettü 25 (DJIST) veya BIST 30 (XU030 / ZPX30 fonu) ile geniş erişim.",
+    },
+    trBes: {
+      title: "Bireysel Emeklilik Sistemi (BES) %30 devlet katkısı",
+      detail:
+        "BES katkı paylarına %30 devlet katkısı + uzun vadede stopaj avantajı, TR'ye özgü en yüksek risksiz alpha kaynaklarından biri. Fon seçimini agresif/dengeli profile göre kendin belirleyebilirsin.",
+    },
+    trReits: {
+      title: "Gayrimenkul yerine GYO ve gayrimenkul yatırım fonları",
+      detail:
+        "Doğrudan konut alımının likidite ve vergi yükü yüksek. BIST'teki GYO'lar (örn. EKGYO, ISGYO) ve nitelikli yatırımcı gayrimenkul fonları daha esnek bir reel varlık ekspozürü sağlar.",
+    },
+  },
+} as const;
+
+function topIdeas(i: Inputs, lang: Lang = "en"): Idea[] {
+  const ideas: Idea[] = [];
+  const realRate = i.policyRate - i.inflation;
+  const D = IDEAS_I18N[lang];
+
+  if (i.policyRate >= 4) ideas.push(D.lockYield);
+  if (realRate >= 1.5) ideas.push(D.tips);
+  if (i.inflation >= 3.5) ideas.push(D.realHedge);
+  if (i.equityValuation === "expensive" && i.risk !== "conservative") ideas.push(D.rotateValue);
+  if (i.usdTrend === "weak" && i.risk !== "conservative") ideas.push(D.em);
+  if (i.gdpGrowth <= 0.5) ideas.push(D.barbell);
+  if (i.horizonYears >= 10 && i.risk === "aggressive") ideas.push(D.dca);
+
+  if (i.market === "tr") {
+    ideas.push(D.trMoneyMarket);
+    if (i.inflation >= 25) ideas.push(D.trTufex);
+    ideas.push(D.trGold);
+    ideas.push(D.trEurobond);
+    if (i.risk !== "conservative") ideas.push(D.trBist);
+    if (i.horizonYears >= 5) ideas.push(D.trBes);
+    ideas.push(D.trReits);
   }
+
+  if (ideas.length === 0) ideas.push(D.diversified);
   return ideas;
 }
+
 
 function defaultsFor(market: Market): Inputs {
   if (market === "tr") {
