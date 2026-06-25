@@ -521,15 +521,36 @@ function Index() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
         <div className="mx-auto max-w-6xl px-6 py-10">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">
-            Scenario Advisor
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">
-            What can I invest in under today's conditions?
-          </h1>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t.eyebrow}
+              </p>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">
+                {t.title}
+              </h1>
+            </div>
+            <div className="inline-flex shrink-0 overflow-hidden rounded-md border border-border">
+              {(["en", "tr"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setLang(l)}
+                  aria-pressed={lang === l}
+                  className={
+                    "px-3 py-1.5 text-xs font-medium transition-colors " +
+                    (lang === l
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-background text-muted-foreground hover:bg-muted")
+                  }
+                >
+                  {l === "en" ? "EN" : "TR"}
+                </button>
+              ))}
+            </div>
+          </div>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground md:text-base">
-            Set the macro regime and your profile. The model returns an expert-style allocation
-            with the reasoning behind every tilt — the way a portfolio manager would explain it.
+            {t.intro}
           </p>
         </div>
       </header>
@@ -537,26 +558,25 @@ function Index() {
       <main className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[1fr_1.4fr]">
         {/* Inputs */}
         <section className="space-y-6 rounded-xl border border-border bg-card p-6">
-          <h2 className="text-lg font-semibold">Conditions</h2>
+          <h2 className="text-lg font-semibold">{t.conditions}</h2>
 
           <SelectRow
-            label="Market"
+            label={t.market}
             value={inputs.market}
             options={[
-              { value: "global", label: "Global" },
-              { value: "tr", label: "Türkiye" },
+              { value: "global", label: t.marketGlobal },
+              { value: "tr", label: t.marketTr },
             ]}
             onChange={(v) => setInputs(defaultsFor(v as Market))}
           />
           {inputs.market === "tr" && (
             <p className="rounded-md border border-border bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-              Türkiye modu: öneriler TL araçlarını, TÜFEX, BES, eurobond, altın
-              fonları ve BIST hisseleri gibi yerel enstrümanları içerir.
+              {t.trNote}
             </p>
           )}
 
           <SliderRow
-            label="Central bank policy rate"
+            label={t.policyRate}
             value={inputs.policyRate}
             min={0}
             max={10}
@@ -565,7 +585,7 @@ function Index() {
             onChange={(v) => update("policyRate", v)}
           />
           <SliderRow
-            label="Inflation (CPI YoY)"
+            label={t.inflation}
             value={inputs.inflation}
             min={-2}
             max={12}
@@ -574,7 +594,7 @@ function Index() {
             onChange={(v) => update("inflation", v)}
           />
           <SliderRow
-            label="Real GDP growth"
+            label={t.gdp}
             value={inputs.gdpGrowth}
             min={-4}
             max={6}
@@ -583,47 +603,47 @@ function Index() {
             onChange={(v) => update("gdpGrowth", v)}
           />
           <div className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-            Real policy rate ≈ <span className="font-mono">{realRate.toFixed(2)}%</span>
+            {t.realRate} <span className="font-mono">{realRate.toFixed(2)}%</span>
           </div>
 
           <SelectRow
-            label="Equity valuation"
+            label={t.valuation}
             value={inputs.equityValuation}
             options={[
-              { value: "cheap", label: "Cheap" },
-              { value: "fair", label: "Fair" },
-              { value: "expensive", label: "Expensive" },
+              { value: "cheap", label: t.cheap },
+              { value: "fair", label: t.fair },
+              { value: "expensive", label: t.expensive },
             ]}
             onChange={(v) => update("equityValuation", v as Inputs["equityValuation"])}
           />
           <SelectRow
-            label="USD trend"
+            label={t.usd}
             value={inputs.usdTrend}
             options={[
-              { value: "weak", label: "Weak" },
-              { value: "neutral", label: "Neutral" },
-              { value: "strong", label: "Strong" },
+              { value: "weak", label: t.weak },
+              { value: "neutral", label: t.neutral },
+              { value: "strong", label: t.strong },
             ]}
             onChange={(v) => update("usdTrend", v as Inputs["usdTrend"])}
           />
 
           <SliderRow
-            label="Investment horizon"
+            label={t.horizon}
             value={inputs.horizonYears}
             min={1}
             max={30}
             step={1}
-            unit=" yrs"
+            unit={t.yrs}
             onChange={(v) => update("horizonYears", v)}
           />
 
           <SelectRow
-            label="Risk profile"
+            label={t.risk}
             value={inputs.risk}
             options={[
-              { value: "conservative", label: "Conservative" },
-              { value: "balanced", label: "Balanced" },
-              { value: "aggressive", label: "Aggressive" },
+              { value: "conservative", label: t.conservative },
+              { value: "balanced", label: t.balanced },
+              { value: "aggressive", label: t.aggressive },
             ]}
             onChange={(v) => update("risk", v as Risk)}
           />
@@ -632,10 +652,8 @@ function Index() {
         {/* Output */}
         <section className="space-y-6">
           <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold">Suggested allocation</h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Normalised to 100%. Treat as a starting framework, not personal advice.
-            </p>
+            <h2 className="text-lg font-semibold">{t.allocation}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">{t.allocationNote}</p>
             <div className="mt-5 space-y-2">
               {sorted.map((row) => (
                 <div key={row.key}>
@@ -655,13 +673,10 @@ function Index() {
           </div>
 
           <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold">How an expert reads this regime</h2>
+            <h2 className="text-lg font-semibold">{t.expertRead}</h2>
             <ul className="mt-3 space-y-3 text-sm leading-relaxed text-muted-foreground">
               {reasoning.length === 0 ? (
-                <li>
-                  Conditions look balanced — no strong macro tilt. Stick to your strategic
-                  allocation and avoid hero trades.
-                </li>
+                <li>{t.balancedRegime}</li>
               ) : (
                 reasoning.map((r, idx) => (
                   <li key={idx} className="flex gap-3">
@@ -674,7 +689,7 @@ function Index() {
           </div>
 
           <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold">Concrete ideas to execute</h2>
+            <h2 className="text-lg font-semibold">{t.ideas}</h2>
             <div className="mt-4 space-y-4">
               {ideas.map((idea, idx) => (
                 <div key={idx} className="border-l-2 border-primary pl-4">
@@ -686,39 +701,17 @@ function Index() {
           </div>
 
           <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-5 text-sm leading-relaxed">
-            <p className="font-semibold text-foreground">
-              Important legal notice — please read
-            </p>
+            <p className="font-semibold text-foreground">{t.legalTitle}</p>
             <p className="mt-2 text-muted-foreground">
-              This tool is a software program that generates illustrative,
-              rules-based output for general educational and informational
-              purposes only. It is <span className="font-medium text-foreground">
-              not investment, financial, tax, legal or accounting advice</span>,
-              not a recommendation, solicitation or offer to buy or sell any
-              security, fund, cryptocurrency, derivative or other financial
-              instrument, and does not constitute portfolio management,
-              investment advisory or brokerage services under any jurisdiction
-              (including SPK/CMB regulations in Türkiye, SEC/FINRA in the U.S.,
-              MiFID II in the EU/UK, or equivalent regimes elsewhere).
+              {t.legalP1Pre}
+              <span className="font-medium text-foreground">{t.legalP1Strong}</span>
+              {t.legalP1Post}
             </p>
+            <p className="mt-2 text-muted-foreground">{t.legalP2}</p>
             <p className="mt-2 text-muted-foreground">
-              Outputs are produced by deterministic logic from the values
-              <span className="whitespace-nowrap"> you </span> enter, may be
-              incomplete, outdated or incorrect, and do not take into account
-              your personal financial situation, objectives, tax position or
-              risk tolerance. Ticker symbols, fund names and instruments shown
-              are illustrative examples only, not endorsements.
-            </p>
-            <p className="mt-2 text-muted-foreground">
-              All investments carry risk, including the possible loss of
-              principal. Past performance does not guarantee future results.
-              <span className="font-medium text-foreground"> You are solely
-              responsible for your own investment decisions</span> and for any
-              resulting gains or losses. Before acting on anything shown here,
-              consult a licensed financial advisor and verify all information
-              with primary sources. By using this tool you acknowledge and
-              accept these terms and agree that the authors and operators
-              accept no liability for any loss or damage arising from its use.
+              {t.legalP3Pre}
+              <span className="font-medium text-foreground">{t.legalP3Strong}</span>
+              {t.legalP3Post}
             </p>
           </div>
 
