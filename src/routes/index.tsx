@@ -523,12 +523,12 @@ function Index() {
   const [lang, setLang] = useState<Lang>("en");
   const t = I18N[lang];
 
-  const { allocation, reasoning } = useMemo(() => buildAllocation(inputs), [inputs]);
-  const ideas = useMemo(() => topIdeas(inputs), [inputs]);
+  const { allocation, reasoning } = useMemo(() => buildAllocation(inputs, lang), [inputs, lang]);
+  const ideas = useMemo(() => topIdeas(inputs, lang), [inputs, lang]);
   const realRate = inputs.policyRate - inputs.inflation;
 
   const sorted = (Object.keys(allocation) as (keyof Allocation)[])
-    .map((k) => ({ key: k, label: LABELS[k], pct: allocation[k] }))
+    .map((k) => ({ key: k, label: LABELS[lang][k], pct: allocation[k] }))
     .filter((r) => r.pct > 0)
     .sort((a, b) => b.pct - a.pct);
 
