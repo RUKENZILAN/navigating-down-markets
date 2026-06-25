@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  base: "/navigating-down-markets/",
+  base: process.env.GITHUB_ACTIONS === "true" ? "/navigating-down-markets/" : "/",
   plugins: [
     tanstackRouter({
       target: "react",
