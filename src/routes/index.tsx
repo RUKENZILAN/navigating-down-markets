@@ -22,6 +22,8 @@ export const Route = createFileRoute("/")({
 });
 
 type Risk = "conservative" | "balanced" | "aggressive";
+type Lang = "en" | "tr";
+
 
 type Market = "global" | "tr";
 
