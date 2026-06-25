@@ -143,7 +143,7 @@ function normalize(alloc: Allocation): Allocation {
   return out;
 }
 
-function buildAllocation(i: Inputs): { allocation: Allocation; reasoning: string[] } {
+function buildAllocation(i: Inputs, lang: Lang = "en"): { allocation: Allocation; reasoning: string[] } {
   const a: Allocation = { ...RISK_BASE[i.risk] };
   const reasoning: string[] = [];
   const realRate = i.policyRate - i.inflation;
