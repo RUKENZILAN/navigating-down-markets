@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Investment Scenario Advisor</title>
+    <script>
+      const repo = "/navigating-down-markets";
+      const path = window.location.pathname;
+      const normalized = path.startsWith(repo) ? path.slice(repo.length) : path;
+      window.location.replace(repo + "/" + window.location.search + "#" + normalized);
+    </script>
+  </head>
+  <body></body>
+</html>
