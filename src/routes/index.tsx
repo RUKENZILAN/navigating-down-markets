@@ -396,9 +396,114 @@ function defaultsFor(market: Market): Inputs {
   };
 }
 
+type Lang = "en" | "tr";
+
+const I18N = {
+  en: {
+    eyebrow: "Scenario Advisor",
+    title: "What can I invest in under today's conditions?",
+    intro:
+      "Set the macro regime and your profile. The model returns an expert-style allocation with the reasoning behind every tilt — the way a portfolio manager would explain it.",
+    conditions: "Conditions",
+    market: "Market",
+    marketGlobal: "Global",
+    marketTr: "Türkiye",
+    trNote:
+      "Türkiye mode: ideas include TL instruments, TÜFEX, BES, eurobond and gold funds, and BIST equities.",
+    policyRate: "Central bank policy rate",
+    inflation: "Inflation (CPI YoY)",
+    gdp: "Real GDP growth",
+    realRate: "Real policy rate ≈",
+    valuation: "Equity valuation",
+    cheap: "Cheap",
+    fair: "Fair",
+    expensive: "Expensive",
+    usd: "USD trend",
+    weak: "Weak",
+    neutral: "Neutral",
+    strong: "Strong",
+    horizon: "Investment horizon",
+    yrs: " yrs",
+    risk: "Risk profile",
+    conservative: "Conservative",
+    balanced: "Balanced",
+    aggressive: "Aggressive",
+    allocation: "Suggested allocation",
+    allocationNote: "Normalised to 100%. Treat as a starting framework, not personal advice.",
+    expertRead: "How an expert reads this regime",
+    balancedRegime:
+      "Conditions look balanced — no strong macro tilt. Stick to your strategic allocation and avoid hero trades.",
+    ideas: "Concrete ideas to execute",
+    legalTitle: "Important legal notice — please read",
+    legalP1Pre:
+      "This tool is a software program that generates illustrative, rules-based output for general educational and informational purposes only. It is ",
+    legalP1Strong: "not investment, financial, tax, legal or accounting advice",
+    legalP1Post:
+      ", not a recommendation, solicitation or offer to buy or sell any security, fund, cryptocurrency, derivative or other financial instrument, and does not constitute portfolio management, investment advisory or brokerage services under any jurisdiction (including SPK/CMB in Türkiye, SEC/FINRA in the U.S., MiFID II in the EU/UK, or equivalent regimes elsewhere).",
+    legalP2:
+      "Outputs are produced by deterministic logic from the values you enter, may be incomplete, outdated or incorrect, and do not take into account your personal financial situation, objectives, tax position or risk tolerance. Ticker symbols, fund names and instruments shown are illustrative examples only, not endorsements.",
+    legalP3Pre:
+      "All investments carry risk, including the possible loss of principal. Past performance does not guarantee future results. ",
+    legalP3Strong: "You are solely responsible for your own investment decisions",
+    legalP3Post:
+      " and for any resulting gains or losses. Before acting on anything shown here, consult a licensed financial advisor and verify all information with primary sources. By using this tool you acknowledge and accept these terms and agree that the authors and operators accept no liability for any loss or damage arising from its use.",
+  },
+  tr: {
+    eyebrow: "Senaryo Danışmanı",
+    title: "Bugünün koşullarında neye yatırım yapabilirim?",
+    intro:
+      "Makro rejimi ve profilini ayarla. Model, her ağırlık kayması için gerekçesiyle birlikte uzman tarzında bir varlık dağılımı sunar — bir portföy yöneticisinin anlatacağı gibi.",
+    conditions: "Koşullar",
+    market: "Piyasa",
+    marketGlobal: "Global",
+    marketTr: "Türkiye",
+    trNote:
+      "Türkiye modu: öneriler TL araçlarını, TÜFEX, BES, eurobond ve altın fonlarını, BIST hisselerini içerir.",
+    policyRate: "Merkez bankası politika faizi",
+    inflation: "Enflasyon (TÜFE, yıllık)",
+    gdp: "Reel GSYH büyümesi",
+    realRate: "Reel politika faizi ≈",
+    valuation: "Hisse değerlemesi",
+    cheap: "Ucuz",
+    fair: "Makul",
+    expensive: "Pahalı",
+    usd: "USD trendi",
+    weak: "Zayıf",
+    neutral: "Nötr",
+    strong: "Güçlü",
+    horizon: "Yatırım vadesi",
+    yrs: " yıl",
+    risk: "Risk profili",
+    conservative: "Korumacı",
+    balanced: "Dengeli",
+    aggressive: "Agresif",
+    allocation: "Önerilen dağılım",
+    allocationNote:
+      "%100'e normalize edilmiştir. Başlangıç çerçevesi olarak değerlendir — kişisel tavsiye değildir.",
+    expertRead: "Bir uzman bu rejimi nasıl okur",
+    balancedRegime:
+      "Koşullar dengeli görünüyor — güçlü bir makro eğilim yok. Stratejik dağılımına bağlı kal, kahraman işlemlerden uzak dur.",
+    ideas: "Uygulanabilir somut fikirler",
+    legalTitle: "Önemli yasal uyarı — lütfen okuyun",
+    legalP1Pre:
+      "Bu araç, yalnızca genel eğitim ve bilgilendirme amacıyla illüstratif, kural tabanlı çıktı üreten bir yazılım programıdır. ",
+    legalP1Strong: "Yatırım, finans, vergi, hukuk veya muhasebe tavsiyesi değildir",
+    legalP1Post:
+      "; herhangi bir menkul kıymet, fon, kripto varlık, türev veya başka bir finansal enstrümanın alınıp satılması için tavsiye, telkin veya teklif niteliği taşımaz ve hiçbir yetki alanında (Türkiye'de SPK, ABD'de SEC/FINRA, AB/Birleşik Krallık'ta MiFID II veya başka eşdeğer rejimler dahil) portföy yönetimi, yatırım danışmanlığı veya aracılık hizmeti oluşturmaz.",
+    legalP2:
+      "Çıktılar, girdiğin değerlerden deterministik mantıkla üretilir; eksik, güncel olmayan veya yanlış olabilir ve kişisel finansal durumunu, hedeflerini, vergi pozisyonunu veya risk toleransını dikkate almaz. Gösterilen kod/sembol, fon adı ve enstrümanlar yalnızca örnek niteliğindedir; onay değildir.",
+    legalP3Pre:
+      "Tüm yatırımlar, anaparanın kaybı dahil risk içerir. Geçmiş performans gelecekteki sonuçları garanti etmez. ",
+    legalP3Strong: "Yatırım kararlarından yalnızca sen sorumlusun",
+    legalP3Post:
+      " ve doğacak kâr veya zararlar sana aittir. Burada gösterilen herhangi bir şeye göre hareket etmeden önce lisanslı bir finansal danışmana başvur ve tüm bilgileri birincil kaynaklardan doğrula. Bu aracı kullanarak bu şartları kabul ettiğini ve yazarların ile işletenlerin kullanımından doğan herhangi bir zarardan sorumlu olmadığını kabul etmiş sayılırsın.",
+  },
+} as const;
+
 function Index() {
   const [inputs, setInputs] = useState<Inputs>(() => defaultsFor("global"));
-
+  const [lang, setLang] = useState<Lang>("en");
+  const t = I18N[lang];
 
   const { allocation, reasoning } = useMemo(() => buildAllocation(inputs), [inputs]);
   const ideas = useMemo(() => topIdeas(inputs), [inputs]);
