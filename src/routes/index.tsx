@@ -96,20 +96,37 @@ const RISK_BASE: Record<Risk, Allocation> = {
   },
 };
 
-const LABELS: Record<keyof Allocation, string> = {
-  cash: "Cash & T-Bills",
-  shortBonds: "Short-Duration Gov Bonds",
-  longBonds: "Long-Duration Gov Bonds",
-  ig: "Investment-Grade Credit",
-  hy: "High-Yield Credit",
-  equityDev: "Developed Equities",
-  equityEm: "Emerging Markets Equities",
-  equityValue: "Value & Dividend Equities",
-  reits: "REITs / Infrastructure",
-  gold: "Gold",
-  commodities: "Broad Commodities",
-  bitcoin: "Bitcoin / Crypto",
+const LABELS: Record<"en" | "tr", Record<keyof Allocation, string>> = {
+  en: {
+    cash: "Cash & T-Bills",
+    shortBonds: "Short-Duration Gov Bonds",
+    longBonds: "Long-Duration Gov Bonds",
+    ig: "Investment-Grade Credit",
+    hy: "High-Yield Credit",
+    equityDev: "Developed Equities",
+    equityEm: "Emerging Markets Equities",
+    equityValue: "Value & Dividend Equities",
+    reits: "REITs / Infrastructure",
+    gold: "Gold",
+    commodities: "Broad Commodities",
+    bitcoin: "Bitcoin / Crypto",
+  },
+  tr: {
+    cash: "Nakit & Hazine Bonosu",
+    shortBonds: "Kısa Vadeli Devlet Tahvili",
+    longBonds: "Uzun Vadeli Devlet Tahvili",
+    ig: "Yatırım Yapılabilir Tahvil",
+    hy: "Yüksek Getirili (Riskli) Tahvil",
+    equityDev: "Gelişmiş Ülke Hisseleri",
+    equityEm: "Gelişen Piyasa Hisseleri",
+    equityValue: "Değer & Temettü Hisseleri",
+    reits: "GYO / Altyapı",
+    gold: "Altın",
+    commodities: "Geniş Emtia",
+    bitcoin: "Bitcoin / Kripto",
+  },
 };
+
 
 function tilt(alloc: Allocation, key: keyof Allocation, delta: number) {
   alloc[key] = Math.max(0, alloc[key] + delta);
