@@ -415,7 +415,6 @@ function defaultsFor(market: Market): Inputs {
   };
 }
 
-type Lang = "en" | "tr";
 
 const I18N = {
   en: {
