@@ -580,10 +580,43 @@ function Index() {
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            Educational tool only. Not investment advice. Ticker examples are illustrative — always
-            verify suitability, costs, tax treatment and jurisdiction-specific availability.
-          </p>
+          <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-5 text-sm leading-relaxed">
+            <p className="font-semibold text-foreground">
+              Important legal notice — please read
+            </p>
+            <p className="mt-2 text-muted-foreground">
+              This tool is a software program that generates illustrative,
+              rules-based output for general educational and informational
+              purposes only. It is <span className="font-medium text-foreground">
+              not investment, financial, tax, legal or accounting advice</span>,
+              not a recommendation, solicitation or offer to buy or sell any
+              security, fund, cryptocurrency, derivative or other financial
+              instrument, and does not constitute portfolio management,
+              investment advisory or brokerage services under any jurisdiction
+              (including SPK/CMB regulations in Türkiye, SEC/FINRA in the U.S.,
+              MiFID II in the EU/UK, or equivalent regimes elsewhere).
+            </p>
+            <p className="mt-2 text-muted-foreground">
+              Outputs are produced by deterministic logic from the values
+              <span className="whitespace-nowrap"> you </span> enter, may be
+              incomplete, outdated or incorrect, and do not take into account
+              your personal financial situation, objectives, tax position or
+              risk tolerance. Ticker symbols, fund names and instruments shown
+              are illustrative examples only, not endorsements.
+            </p>
+            <p className="mt-2 text-muted-foreground">
+              All investments carry risk, including the possible loss of
+              principal. Past performance does not guarantee future results.
+              <span className="font-medium text-foreground"> You are solely
+              responsible for your own investment decisions</span> and for any
+              resulting gains or losses. Before acting on anything shown here,
+              consult a licensed financial advisor and verify all information
+              with primary sources. By using this tool you acknowledge and
+              accept these terms and agree that the authors and operators
+              accept no liability for any loss or damage arising from its use.
+            </p>
+          </div>
+
         </section>
       </main>
     </div>
