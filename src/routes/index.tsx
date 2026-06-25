@@ -434,6 +434,22 @@ function Index() {
         <section className="space-y-6 rounded-xl border border-border bg-card p-6">
           <h2 className="text-lg font-semibold">Conditions</h2>
 
+          <SelectRow
+            label="Market"
+            value={inputs.market}
+            options={[
+              { value: "global", label: "Global" },
+              { value: "tr", label: "Türkiye" },
+            ]}
+            onChange={(v) => setInputs(defaultsFor(v as Market))}
+          />
+          {inputs.market === "tr" && (
+            <p className="rounded-md border border-border bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+              Türkiye modu: öneriler TL araçlarını, TÜFEX, BES, eurobond, altın
+              fonları ve BIST hisseleri gibi yerel enstrümanları içerir.
+            </p>
+          )}
+
           <SliderRow
             label="Central bank policy rate"
             value={inputs.policyRate}
